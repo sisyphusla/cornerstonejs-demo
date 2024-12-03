@@ -1,3 +1,4 @@
-# React + Vite + Cornerstone3D
-
-see code
+- windowCenter/windowWidth (左鍵拖拉)
+- 平移 (中鍵拖拉) 
+- 縮放 (右鍵拖拉)
+- 切片捲動 (滾輪)
