@@ -2,12 +2,10 @@ import { useEffect, useRef, useState } from "react";
 import { initializeCornerstoneCore } from '../../lib/cornerstoneInit';
 import { setupTools } from '../../lib/toolsSetup';
 import { setupRendering } from '../../lib/renderingSetup';
-import { ToolGroupManager } from '../../lib/cornerstoneInit';
-import { Enums, metaData, utilities } from '@cornerstonejs/core';
-import { ViewerContainer } from './ViewerContainer';
+import { useViewerEvents } from '../../hook/useViewerEvents';
+import { ImageCanvas } from './ImageCanvas';
 import { ViewerOverlay } from './ViewerOverlay';
 
-// Types
 interface CTViewerProps {
   studyInstanceUID: string;
   seriesInstanceUID: string;
@@ -16,45 +14,36 @@ interface CTViewerProps {
   height?: string | number;
 }
 
-interface ImageSliceData {
-  imageIndex: number;
-  numberOfSlices: number;
-  instanceNumber: number | null;
-}
-
-interface VOIData {
-  windowCenter: number;
-  windowWidth: number;
-}
-
-// Constants
-const DEFAULT_VIEWPORT_ID = 'CT_AXIAL';
-const TOOLGROUP_ID = 'CT_TOOLGROUP_ID';
-const DEFAULT_VOI = {
-  windowCenter: 100,
-  windowWidth: 1000,
-};
-
-function Viewer({
+export function Viewer({
   studyInstanceUID,
   seriesInstanceUID,
   wadoRsRoot,
   width = "512px",
   height = "512px"
 }: CTViewerProps) {
-  // Refs
   const elementRef = useRef<HTMLDivElement>(null);
   const running = useRef(false);
   const renderingEngineRef = useRef(null);
-
-  // State
-  const [imageSliceData, setImageSliceData] = useState<ImageSliceData>({
+  const [imageIds, setImageIds] = useState<string[]>([]);
+  
+  const [imageSliceData, setImageSliceData] = useState({
     imageIndex: 0,
     numberOfSlices: 0,
     instanceNumber: null
   });
+  
+  const [voi, setVOI] = useState({
+    windowCenter: 40,
+    windowWidth: 400,
+  });
 
-  const [voi, setVOI] = useState<VOIData>(DEFAULT_VOI);
+  useViewerEvents({
+    elementRef,
+    renderingEngine: renderingEngineRef.current,
+    imageIds,
+    setImageSliceData,
+    setVOI
+  });
 
   useEffect(() => {
     const setup = async () => {
@@ -64,7 +53,7 @@ function Viewer({
       try {
         await initializeCornerstoneCore();
 
-        const { renderingEngine, imageIds } = await setupRendering({
+        const { renderingEngine, imageIds: newImageIds } = await setupRendering({
           element: elementRef.current,
           studyInstanceUID,
           seriesInstanceUID,
@@ -72,10 +61,11 @@ function Viewer({
         });
 
         renderingEngineRef.current = renderingEngine;
+        setImageIds(newImageIds);
 
         setImageSliceData(prev => ({
           ...prev,
-          numberOfSlices: imageIds.length
+          numberOfSlices: newImageIds.length
         }));
 
         setupTools({
@@ -84,61 +74,6 @@ function Viewer({
 
         renderingEngine.render();
 
-        // Event handlers
-        const updateImageIndex = (evt: Event) => {
-          const viewport = renderingEngine.getViewport(DEFAULT_VIEWPORT_ID);
-          if (!viewport) return;
-
-          const currentImageIdIndex = viewport.getCurrentImageIdIndex();
-          const imageId = imageIds[currentImageIdIndex];
-          
-          const generalImageModule = metaData.get('generalImageModule', imageId) || {};
-          const { instanceNumber } = generalImageModule;
-
-          setImageSliceData(prev => ({
-            ...prev,
-            imageIndex: currentImageIdIndex,
-            instanceNumber: instanceNumber ? parseInt(instanceNumber) : null
-          }));
-        };
-
-        const updateVOI = (evt: CustomEvent) => {
-          const { range } = evt.detail;
-          if (!range) return;
-
-          const { lower, upper } = range;
-          const { windowWidth, windowCenter } = utilities.windowLevel.toWindowLevel(lower, upper);
-
-          setVOI({
-            windowCenter,
-            windowWidth
-          });
-        };
-
-        // Add event listeners
-        elementRef.current.addEventListener(
-          Enums.Events.IMAGE_RENDERED, 
-          updateImageIndex as EventListener
-        );
-        elementRef.current.addEventListener(
-          Enums.Events.VOI_MODIFIED, 
-          updateVOI as EventListener
-        );
-
-        // Cleanup function
-        return () => {
-          if (elementRef.current) {
-            elementRef.current.removeEventListener(
-              Enums.Events.IMAGE_RENDERED, 
-              updateImageIndex as EventListener
-            );
-            elementRef.current.removeEventListener(
-              Enums.Events.VOI_MODIFIED, 
-              updateVOI as EventListener
-            );
-          }
-          ToolGroupManager.destroyToolGroup(TOOLGROUP_ID);
-        };
       } catch (error) {
         console.error('Error setting up viewer:', error);
         running.current = false;
@@ -148,25 +83,15 @@ function Viewer({
     setup();
   }, [studyInstanceUID, seriesInstanceUID, wadoRsRoot]);
 
-  const handleContextMenu = (e: React.MouseEvent) => {
-    e.preventDefault();
-  };
-
   return (
-    <ViewerContainer width={width} height={height}>
-      <div
-        ref={elementRef}
-        className="w-full h-full"
-        onContextMenu={handleContextMenu}
+    <div className="relative" style={{ width, height }}>  
+      <ImageCanvas 
+        elementRef={elementRef}
       />
-      <ViewerOverlay
-        imageIndex={imageSliceData.imageIndex}
-        numberOfSlices={imageSliceData.numberOfSlices}
-        windowWidth={voi.windowWidth}
-        windowCenter={voi.windowCenter}
+      <ViewerOverlay 
+        sliceData={imageSliceData}
+        voiData={voi}
       />
-    </ViewerContainer>
+    </div>
   );
 }
-
-export default Viewer;

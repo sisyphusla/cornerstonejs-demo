@@ -23,9 +23,6 @@ importers:
       '@cornerstonejs/tools':
         specifier: ^2.1.16
         version: 2.2.11(@cornerstonejs/core@2.2.11(@babel/preset-env@7.26.0(@babel/core@7.26.0))(autoprefixer@10.4.20(postcss@8.4.49))(webpack@5.96.1)(wslink@2.2.1))(@kitware/vtk.js@32.1.0(@babel/preset-env@7.26.0(@babel/core@7.26.0))(autoprefixer@10.4.20(postcss@8.4.49))(webpack@5.96.1)(wslink@2.2.1))(@types/d3-array@3.2.1)(@types/d3-interpolate@3.0.4)(d3-array@3.2.4)(d3-interpolate@3.0.1)(gl-matrix@3.4.3)
-      autoprefixer:
-        specifier: ^10.4.20
-        version: 10.4.20(postcss@8.4.49)
       dcmjs:
         specifier: 0.33.0
         version: 0.33.0
@@ -35,18 +32,12 @@ importers:
       dicomweb-client:
         specifier: 0.10.4
         version: 0.10.4
-      postcss:
-        specifier: ^8.4.49
-        version: 8.4.49
       react:
         specifier: ^18.2.0
         version: 18.3.1
       react-dom:
         specifier: ^18.2.0
         version: 18.3.1(react@18.3.1)
-      tailwindcss:
-        specifier: ^3.4.15
-        version: 3.4.15
       vite-plugin-wasm:
         specifier: ^3.3.0
         version: 3.3.0(vite@5.4.11(@types/node@22.9.1)(terser@5.36.0))
@@ -87,6 +78,9 @@ importers:
       '@vitejs/plugin-react':
         specifier: ^4.2.1
         version: 4.3.3(vite@5.4.11(@types/node@22.9.1)(terser@5.36.0))
+      autoprefixer:
+        specifier: ^10.4.20
+        version: 10.4.20(postcss@8.4.49)
       eslint:
         specifier: ^8.57.0
         version: 8.57.1
@@ -96,6 +90,9 @@ importers:
       eslint-plugin-react-refresh:
         specifier: ^0.4.6
         version: 0.4.14(eslint@8.57.1)
+      postcss:
+        specifier: ^8.4.49
+        version: 8.4.49
       rollup:
         specifier: ^4.24.3
         version: 4.27.3
@@ -114,6 +111,9 @@ importers:
       rollup-plugin-terser:
         specifier: ^7.0.2
         version: 7.0.2(rollup@4.27.3)
+      tailwindcss:
+        specifier: ^3.4.15
+        version: 3.4.15
       typescript:
         specifier: ^5.6.3
         version: 5.6.3

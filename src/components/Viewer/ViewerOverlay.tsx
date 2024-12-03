@@ -1,27 +1,25 @@
 interface ViewerOverlayProps {
-  imageIndex: number;
-  numberOfSlices: number;
-  windowWidth: number;
-  windowCenter: number;
+  sliceData: {
+    imageIndex: number;
+    numberOfSlices: number;
+  };
+  voiData: {
+    windowWidth: number;
+    windowCenter: number;
+  };
 }
 
-export function ViewerOverlay({
-  imageIndex,
-  numberOfSlices,
-  windowWidth,
-  windowCenter
-}: ViewerOverlayProps) {
+export function ViewerOverlay({ sliceData, voiData }: ViewerOverlayProps) {
   return (
     <>
-      <div className="absolute top-2 right-2 px-3 py-1.5 bg-black/50 text-red-500 rounded text-sm z-10">
-        <span>
-          Slice: {imageIndex + 1}/{numberOfSlices}
-        </span>
+      {/* 右上角切片信息 */}
+      <div className="absolute top-2.5 right-2.5 text-red-500 bg-black/50 px-2.5 py-1 rounded text-sm z-[1000]">
+        Slice: {sliceData.imageIndex + 1}/{sliceData.numberOfSlices}
       </div>
-      <div className="absolute top-2 left-2 px-3 py-1.5 bg-black/50 text-red-500 rounded text-sm z-10">
-        <span>
-          W: {windowWidth.toFixed(0)} L: {windowCenter.toFixed(0)}
-        </span>
+
+      {/* 左上角窗位信息 */}
+      <div className="absolute top-2.5 left-2.5 text-red-500 bg-black/50 px-2.5 py-1 rounded text-sm z-[1000]">
+        W: {voiData.windowWidth.toFixed(0)} L: {voiData.windowCenter.toFixed(0)}
       </div>
     </>
   );
